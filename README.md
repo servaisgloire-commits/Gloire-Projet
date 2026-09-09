@@ -1,54 +1,186 @@
-# Gloire — Portfolio Data & Automatisation
+# Gloire V2 — Classement automatique des factures fournisseurs
 
-**Transformer des documents en données structurées, puis préparer leur analyse.**
+**Automatiser la lecture, l'identification, le renommage, le classement et le suivi des factures PDF avec Excel VBA et un OCR local.**
 
-Ce portfolio rassemble deux projets complémentaires : un prototype OCR relié à Excel et un environnement de formation SQL Server construit autour d’un grand groupe fictif. Chaque projet présente son besoin métier, ses composants, les vérifications réalisées et son périmètre actuel.
+## Présentation
 
-## Les projets
+Gloire V2 est un projet d'automatisation documentaire développé sous **Excel VBA**. L'objectif est de réduire les opérations manuelles nécessaires au traitement des factures fournisseurs : ouverture des PDF, lecture des références, renommage des fichiers, création des dossiers fournisseurs et classement.
 
-| Projet | Besoin métier | Solution disponible | Technologies |
-|---|---|---|---|
-| [OCR de factures](OCR/README.md) | Limiter la ressaisie d’informations issues de factures PDF | Pont local entre un moteur OCR et des modules Excel/VBA | C#, .NET Framework, VBA, Python |
-| [Analyse d’un grand groupe](SQL/README.md) | Disposer de données cohérentes pour pratiquer l’analyse commerciale, achats et recouvrement | Base de 700 000 lignes, scripts de contrôle et parcours de 60 exercices | SQL Server, T-SQL, Python ; parcours Excel et Power BI |
+La solution fonctionne **localement sous Windows**, sans API payante ni service cloud. Un pont OCR Windows est embarqué dans le module VBA afin d'extraire le texte des factures PDF.
 
-Ces projets sont indépendants : les résultats OCR ne sont pas injectés dans la base SQL de formation.
+## Problématique métier
 
-## 01 — OCR de factures vers Excel
+Dans un processus classique, un utilisateur doit ouvrir chaque facture, identifier le fournisseur et les références utiles, renommer le PDF puis le déplacer dans le bon dossier. Sur un volume important de documents, ces opérations deviennent répétitives et augmentent le risque d'erreur de classement.
 
-Le projet vise à préparer des lignes de saisie à partir de la première page d’une facture PDF. Excel transmet un référentiel d’opérations et de rédacteurs ; le pont C# renvoie des informations structurées accompagnées d’indices de confiance. Le traitement s’effectue localement.
+Gloire V2 automatise cette chaîne tout en conservant un **contrôle humain lorsqu'une information est incertaine**.
 
-**Disponible :** code du pont C#, deux modules VBA, protocole d’échange, exemple anonymisé et contrôles automatiques de structure.
+## Fonctionnalités principales
 
-**État :** prototype d’intégration. Les deux modules ont passé les contrôles de structure et de cohérence du moteur embarqué. Le classeur métier n’est pas fourni et la précision OCR n’a pas été mesurée sur un corpus de référence.
+- Analyse automatique des factures PDF.
+- OCR Windows exécuté localement.
+- Détection du **fournisseur**.
+- Extraction du **numéro de contrat / référence client**.
+- Extraction du **numéro de facture**.
+- Détection de la **date d'échéance**.
+- Dictionnaire de fournisseurs et gestion des alias.
+- Utilisation de connecteurs textuels et d'expressions régulières.
+- Mémoire des formats propres à chaque fournisseur.
+- Priorité donnée aux formats déjà appris.
+- Contrôle utilisateur en cas de doute.
+- Correction manuelle avec mise à jour de la mémoire fournisseur.
+- Renommage automatique des fichiers.
+- Création automatique des dossiers fournisseurs.
+- Détection des doublons.
+- Conservation des PDF non validés dans le dossier de départ.
+- Journalisation dans une feuille **STATISTIQUES**.
+- Bouton permettant d'arrêter proprement le traitement.
 
-[Lire l’étude de cas OCR](OCR/ETUDE_DE_CAS.md) · [Consulter le code C#](OCR/GLOIRE_LOG_LECTUREFACTURE/Program.cs)
+## Chaîne de traitement
 
-## 02 — SQL Server : Groupe Galaxie
+```text
+Factures PDF
+     |
+     v
+OCR Windows local
+     |
+     v
+Extraction du texte
+     |
+     v
+Identification fournisseur
+     |
+     v
+Recherche contrat / facture / échéance
+     |
+     +------ information incertaine ------> contrôle utilisateur
+     |                                          |
+     |                                     validation / correction
+     |                                          |
+     v                                          v
+Renommage standardisé <-------------------------+
+     |
+     v
+Création du dossier fournisseur
+     |
+     v
+Classement du PDF
+     |
+     v
+Historique et statistiques Excel
+```
 
-Un groupe français fictif de 50 sociétés et 500 établissements sert de cadre à l’analyse des ventes, achats, salariés et paiements. Le modèle relie 13 tables et permet d’étudier le chiffre d’affaires, la marge commerciale et les retards de règlement.
+## Exemple
 
-**Disponible :** 700 000 lignes synthétiques, 20 CSV, scripts de création et d’import, vues analytiques, 50 exercices progressifs et 10 demandes avancées avec corrigés.
+Une facture identifiée avec :
 
-**État :** base chargée et contrôlée sur SQL Server 2025. Les vérifications n’ont détecté aucune anomalie de montants ou de relations ; les 60 requêtes de correction ont été exécutées. Les tableaux de bord Excel et Power BI restent des livrables à réaliser dans le parcours.
+- fournisseur : `ENGIE`
+- contrat : `123456`
+- facture : `F2026-854`
 
-[Lire l’étude de cas SQL](SQL/ETUDE_DE_CAS.md) · [Voir la feuille de mission](SQL/Feuille_de_mission.md) · [Consulter le modèle SQL](SQL/01_Create_Database.sql)
+peut être renommée sous la forme :
 
-## Compétences mobilisées dans les projets
+```text
+123456_F2026-854_ENGIE.pdf
+```
 
-- **Structuration des données :** référentiels, clés primaires et étrangères, granularité des tables.
-- **Qualité :** vérification des montants, des dates, des relations et du contenu embarqué.
-- **Automatisation :** échanges entre Excel/VBA et un programme C#, génération de données avec Python.
-- **SQL :** jointures, agrégations, CTE, fonctions de dates et fonctions de classement.
-- **Lecture métier :** distinction ventes/achats, gestion des annulations, paiements partiels et encours.
-- **Documentation :** procédures de démarrage, règles de calcul, limites et preuves de validation.
+puis classée automatiquement dans :
 
-## Parcourir le portfolio
+```text
+Dossier_Arrivee\ENGIE\123456_F2026-854_ENGIE.pdf
+```
 
-Pour une lecture rapide, commencer par les études de cas. Pour examiner l’implémentation, ouvrir les fichiers sources. Pour reproduire le travail, suivre les instructions propres à chaque projet et utiliser les archives complètes.
+## Organisation dans Excel
 
-[Paquet OCR](OCR_Projet.zip) · [Paquet SQL — 700 000 lignes](SQL_Projet_700000.zip)
+Le module peut créer et exploiter plusieurs feuilles de travail :
 
-## Ce qui reste à démontrer
+| Feuille | Rôle |
+|---|---|
+| `ARRETER_TRAITEMENT` | Interface permettant d'interrompre proprement la macro |
+| `FOURNISSEURS` | Référentiel et fournisseurs personnalisés |
+| `MEMOIRE_FORMATS` | Mémoire des formats détectés/corrigés par fournisseur |
+| `STATISTIQUES` | Historique des traitements et anomalies |
 
-Les gains de temps OCR et son taux d’exactitude restent à mesurer. Le parcours SQL doit être complété par des analyses personnelles, un classeur Excel et un rapport Power BI. Aucun gain de productivité, résultat en production ou niveau de maîtrise n’est déduit automatiquement des tests techniques.
+## Principales macros
 
+```text
+Gloire_V2_Tester_OCR
+Gloire_V2_Classement_Factures
+Gloire_V2_Initialiser_Memoire
+Gloire_V2_Arreter_Le_Traitement
+```
+
+La macro principale est :
+
+```text
+Gloire_V2_Classement_Factures
+```
+
+## Technologies utilisées
+
+- **Microsoft Excel**
+- **VBA**
+- **Windows OCR**
+- **Win32 API** pour certaines interactions avec les fenêtres
+- **Microsoft Edge** pour le contrôle visuel des factures
+- **VBScript RegExp** / expressions régulières
+- **FileSystemObject** pour la gestion des fichiers et dossiers
+- **ADODB.Stream** pour les flux et fichiers UTF-8
+- **MSXML** pour le décodage Base64 du pont OCR embarqué
+
+## Contraintes de conception
+
+Le projet a été conçu pour fonctionner dans un environnement où l'installation de solutions externes peut être limitée.
+
+Il n'utilise pas :
+
+- d'API OCR payante ;
+- de cloud pour analyser les factures ;
+- Power Query pour le traitement ;
+- PowerShell pour exécuter le processus principal.
+
+Les factures et les textes OCR restent traités localement sur la machine de l'utilisateur.
+
+## Gestion des erreurs et contrôle
+
+Si une facture ne peut pas être classée avec suffisamment de certitude, le programme ne doit pas inventer l'information. Le document reste dans le dossier de départ et le traitement continue avec les factures suivantes.
+
+Le système prend notamment en compte :
+
+- OCR indisponible ;
+- fournisseur non identifié ;
+- contrat ou référence introuvable ;
+- numéro de facture absent ;
+- date d'échéance absente ;
+- doublon de fichier ;
+- erreur de déplacement ;
+- demande d'arrêt utilisateur.
+
+## Source
+
+Le module VBA original contient également le **pont OCR compilé encodé en Base64**. Pour conserver le fichier original à l'identique, une archive complète du module est fournie dans le dossier `source/` sous forme Base64 découpée en deux parties, avec les instructions de reconstruction.
+
+Un extrait VBA lisible directement sur GitHub est également disponible dans `src/` afin de présenter les points d'entrée et l'architecture du module.
+
+## Compétences démontrées
+
+Ce projet met en pratique plusieurs compétences techniques et métier :
+
+- automatisation de processus ;
+- VBA avancé ;
+- OCR et traitement documentaire ;
+- manipulation de fichiers PDF ;
+- expressions régulières ;
+- gestion d'erreurs ;
+- contrôle et qualité des données ;
+- conception d'un système semi-automatique avec validation humaine ;
+- amélioration continue d'un processus administratif et financier.
+
+## Statut du projet
+
+**Version : Gloire V2 — MAJ 5**
+
+Le code source est disponible pour démonstration et amélioration. Les gains de temps et le taux de reconnaissance OCR ne sont pas présentés comme des résultats mesurés tant qu'ils n'ont pas été évalués sur un corpus de factures de référence.
+
+---
+
+**Projet personnel — Automatisation / Finance & SI / RPA / OCR**
