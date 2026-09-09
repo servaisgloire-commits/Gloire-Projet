@@ -1,194 +1,101 @@
-# PRÉSENTATION DU PROJET — GLOIRE V2
+# Automatisation Finance & SI — Excel VBA
 
-## Automatisation Finance & SI avec Excel VBA
+Ce dépôt regroupe trois projets que j’ai développés autour d’un même objectif : **réduire les tâches manuelles, fiabiliser les informations fournisseurs et faciliter le traitement des factures**.
 
-Ce dépôt présente un ensemble d'outils développés sous **Excel VBA** pour automatiser des tâches répétitives liées au traitement des factures fournisseurs et au contrôle du référentiel fournisseurs.
+Je suis parti de besoins très concrets rencontrés dans des processus de gestion : retrouver rapidement les informations d’une entreprise, comprendre ce qu’il se passe lorsqu’un fournisseur cesse son activité, puis automatiser le traitement de factures PDF.
 
-Le projet est organisé autour de trois modules complémentaires :
+Les trois projets se complètent :
 
-1. **FOURNISSEUR_V1** — recherche et contrôle des informations d'une entreprise.
-2. **NOUVEAU_SIREN_V1** — recherche d'une continuité juridique lorsqu'un fournisseur cesse son activité.
-3. **Gloire V2** — lecture OCR, identification, renommage et classement automatique des factures PDF.
-
-L'objectif général est de réduire les contrôles manuels, fiabiliser les données et conserver une intervention humaine lorsqu'une situation nécessite une validation.
+1. **FOURNISSEUR_V1** — contrôle automatique des informations d’un fournisseur.
+2. **NOUVEAU_SIREN_V1** — recherche d’une éventuelle continuité juridique après une cessation d’activité.
+3. **GLOIRE V2** — lecture OCR, identification, renommage et classement de factures fournisseurs.
 
 ---
 
-## 1. FOURNISSEUR_V1
+## Les projets
 
-### Objectif
+### 1. FOURNISSEUR_V1 — Contrôle du référentiel fournisseurs
 
-FOURNISSEUR_V1 automatise la recherche d'informations sur une entreprise à partir d'un nom ou d'une information présente dans Excel.
+Le premier besoin était simple : éviter de rechercher manuellement chaque entreprise sur Internet.
 
-La macro interroge l'**API Recherche d'Entreprises** et récupère notamment :
+À partir d’un nom de fournisseur présent dans Excel, la macro interroge l’API Recherche d’Entreprises et récupère automatiquement le **SIREN, la raison sociale, le statut administratif et la date de fermeture lorsqu’elle existe**.
 
-- le SIREN ;
-- la raison sociale ;
-- le statut administratif ;
-- la date de fermeture ou de cessation lorsqu'elle est disponible.
-
-### Fonctionnement
-
-```text
-Donnée fournisseur dans Excel
-        ↓
-Requête API Recherche Entreprises
-        ↓
-Lecture de la réponse JSON
-        ↓
-Extraction du SIREN / statut / société / date
-        ↓
-Mise à jour automatique du tableau Excel
-```
-
-Ce module permet d'accélérer le contrôle d'un référentiel fournisseurs et de repérer les entreprises actives ou cessées sans effectuer chaque recherche manuellement.
+➡️ [Voir la présentation détaillée de FOURNISSEUR_V1](presentations/FOURNISSEUR_V1.md)
 
 ---
 
-## 2. NOUVEAU_SIREN_V1
+### 2. NOUVEAU_SIREN_V1 — Recherche de continuité juridique
 
-### Objectif
+Le deuxième projet répond à une question plus complexe : **que devient un fournisseur lorsqu’il est radié, absorbé, fusionné ou concerné par une autre opération juridique ?**
 
-NOUVEAU_SIREN_V1 intervient lorsqu'un fournisseur est cessé, radié ou concerné par une opération juridique.
+Le programme analyse les informations disponibles dans le BODACC, identifie la nature de l’événement et cherche, lorsqu’il existe suffisamment d’éléments, la société qui pourrait avoir repris l’activité ou le patrimoine de l’entreprise initiale.
 
-L'outil analyse des données publiques afin de rechercher une éventuelle entreprise ayant repris, absorbé ou reçu tout ou partie de son activité ou de son patrimoine.
-
-### Sources principales
-
-- **BODACC** ;
-- **API Recherche d'Entreprises**.
-
-### Événements analysés
-
-Le moteur contient des règles permettant notamment d'identifier :
-
-- fusion ;
-- fusion-absorption ;
-- transmission universelle de patrimoine (TUP) ;
-- scission ;
-- apport partiel d'actif ;
-- cession de fonds ;
-- dissolution ;
-- liquidation judiciaire ;
-- redressement judiciaire ;
-- procédures collectives.
-
-### Fonctionnement
-
-```text
-Ancien SIREN
-    ↓
-Contrôle du statut
-    ↓
-Recherche BODACC
-    ↓
-Analyse des annonces juridiques
-    ↓
-Détection de la cause / opération
-    ↓
-Identification d'une entreprise bénéficiaire
-    ↓
-Recherche de son SIREN
-    ↓
-Résultat ou contrôle humain
-```
-
-Le système ne doit pas inventer de nouveau SIREN lorsqu'aucune continuité fiable ne peut être établie.
+➡️ [Voir la présentation détaillée de NOUVEAU_SIREN_V1](presentations/NOUVEAU_SIREN_V1.md)
 
 ---
 
-## 3. GLOIRE V2 — CLASSEMENT AUTOMATIQUE DES FACTURES
+### 3. GLOIRE V2 — Classement automatique des factures
 
-### Objectif
+Le troisième projet porte sur le traitement documentaire.
 
-Gloire V2 automatise la lecture, l'identification, le renommage, le classement et le suivi de factures fournisseurs au format PDF.
+GLOIRE V2 analyse des factures PDF avec un OCR local, identifie le fournisseur et plusieurs informations utiles, propose une validation lorsque nécessaire, renomme le document et le classe automatiquement dans le bon dossier.
 
-La solution utilise un **OCR Windows exécuté localement** afin d'extraire les informations présentes sur les documents sans envoyer les factures vers un service OCR cloud.
+Le programme conserve également une mémoire des formats déjà rencontrés afin de mieux reconnaître certaines factures fournisseurs au fil des corrections validées.
 
-### Informations recherchées
+➡️ [Voir la présentation détaillée de GLOIRE V2](presentations/GLOIRE_V2.md)
 
-- fournisseur ;
-- numéro de contrat ou référence client ;
-- numéro de facture ;
-- date d'échéance.
+---
 
-### Chaîne de traitement
+## Logique d’ensemble
 
 ```text
-Facture PDF
-    ↓
-OCR local Windows
-    ↓
-Extraction du texte
-    ↓
-Identification du fournisseur
-    ↓
-Recherche contrat / facture / échéance
-    ↓
-Contrôle des valeurs détectées
-    ↓
-Validation humaine si nécessaire
-    ↓
-Renommage du PDF
-    ↓
-Classement dans le dossier fournisseur
-    ↓
-Journalisation du traitement
-```
-
-### Mémoire fournisseur
-
-Gloire V2 mémorise des exemples de formats propres aux fournisseurs. Lorsqu'un format connu est retrouvé sur une nouvelle facture, cette mémoire est utilisée en priorité avant les règles génériques.
-
-Il s'agit d'un **système de reconnaissance adaptatif basé sur des exemples et des règles**, et non d'un modèle de machine learning.
-
-### Contrôle humain
-
-Lorsque le fournisseur ou une référence importante n'est pas suffisamment fiable, le PDF peut être ouvert pour validation. L'utilisateur peut valider, corriger ou reporter le traitement. Un document non validé reste dans son dossier de départ.
-
-### Renommage
-
-```text
-CONTRAT_NUMEROFACTURE_FOURNISSEUR.pdf
-```
-
-Exemple :
-
-```text
-123456_F2026-854_ENGIE.pdf
+Référentiel fournisseurs
+        │
+        ├── Vérifier l’identité et le statut de l’entreprise
+        │        ↓
+        │   FOURNISSEUR_V1
+        │
+        ├── Si l’entreprise est cessée ou radiée
+        │        ↓
+        │   NOUVEAU_SIREN_V1
+        │
+        └── Pour les factures reçues
+                 ↓
+             GLOIRE V2
+                 ↓
+        OCR → contrôle → renommage → classement
 ```
 
 ---
 
 ## Technologies utilisées
 
-- Microsoft Excel ;
-- VBA ;
-- Windows OCR ;
-- API Recherche d'Entreprises ;
-- API BODACC ;
-- HTTP / JSON ;
-- VBScript.RegExp ;
-- Scripting.Dictionary ;
-- FileSystemObject ;
-- Microsoft Edge ;
-- API Windows.
+- Microsoft Excel
+- VBA
+- API Recherche d’Entreprises
+- données BODACC
+- requêtes HTTP
+- traitement JSON
+- expressions régulières
+- `Scripting.Dictionary`
+- `FileSystemObject`
+- OCR Windows local
+- Microsoft Edge pour certains contrôles visuels
 
 ---
 
-## Compétences démontrées
+## Ce que ces projets m’ont permis de travailler
 
-- automatisation de processus ;
+- automatisation de processus métier ;
 - amélioration continue ;
 - développement VBA ;
-- intégration d'API publiques ;
-- traitement de données JSON ;
-- OCR et gestion documentaire ;
-- contrôle et qualité des données ;
+- utilisation d’API publiques ;
+- traitement et contrôle de données ;
+- lecture de réponses JSON ;
 - expressions régulières ;
-- gestion des erreurs ;
-- conception d'un processus semi-automatisé avec contrôle humain ;
-- compréhension des problématiques Finance & SI.
+- gestion des erreurs et des cas particuliers ;
+- OCR et gestion documentaire ;
+- conception d’un processus avec validation humaine lorsque l’automatisation ne suffit pas.
 
 ---
 
@@ -196,16 +103,20 @@ Exemple :
 
 ```text
 PRESENTATION_DU_PROJET.md
+
+presentations/
+├── FOURNISSEUR_V1.md
+├── NOUVEAU_SIREN_V1.md
+└── GLOIRE_V2.md
+
 src/
 ├── FOURNISSEUR_V1.bas
-├── NOUVEAU_SIREN_V1_CORE.bas
-└── GLOIRE_V2_CORE.bas
+├── NOUVEAU_SIREN_V1_BLOCS_PRINCIPAUX.bas
+└── GLOIRE_V2_BLOCS_PRINCIPAUX.bas
 ```
 
-Le fichier `FOURNISSEUR_V1.bas` correspond à la macro reconstruite depuis les archives retrouvées.
-
-Les fichiers `NOUVEAU_SIREN_V1_CORE.bas` et `GLOIRE_V2_CORE.bas` présentent les points d'entrée, paramètres et logiques principales vérifiés à partir des archives complètes du projet. Les archives originales ont servi de référence pour éviter de présenter du code inventé ou des fonctionnalités non présentes.
+Les fichiers VBA présents dans `src/` permettent de voir directement les parties les plus importantes de la logique de chaque projet.
 
 ---
 
-**Positionnement : Automatisation de processus · Finance & SI · VBA · OCR · RPA · Gestion documentaire · Qualité des données**
+**Positionnement : Automatisation de processus · Finance & SI · Excel VBA · OCR · Qualité des données · Gestion documentaire**
