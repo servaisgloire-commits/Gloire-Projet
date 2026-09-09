@@ -155,6 +155,15 @@ Le système prend notamment en compte :
 - erreur de déplacement ;
 - demande d'arrêt utilisateur.
 
+## Autre projet du portfolio — Contrôle fournisseurs & SIREN
+
+Le dépôt contient également les archives retrouvées d'un projet antérieur de **contrôle du référentiel fournisseurs** :
+
+- [`FOURNISSEUR_V1`](Fournisseurs_SIREN/FOURNISSEUR_V1_Reconstruit.bas) : recherche d'entreprise, récupération du SIREN, de la raison sociale, du statut et de la date de cessation via l'API Recherche Entreprises ;
+- [`NOUVEAU_SIREN_V1`](Fournisseurs_SIREN/README.md) : évolution utilisant le BODACC et Recherche Entreprises pour analyser les cessations, fusions, TUP, scissions et autres événements juridiques afin d'identifier une éventuelle continuité vers un nouveau SIREN.
+
+➡️ [Voir le projet Fournisseurs & SIREN](Fournisseurs_SIREN/README.md)
+
 ## Source
 
 Le module VBA original contient également le **pont OCR compilé encodé en Base64**. Pour conserver le fichier original à l'identique, une archive complète du module est fournie dans le dossier `source/` sous forme Base64 découpée en deux parties, avec les instructions de reconstruction.
@@ -174,6 +183,8 @@ Ce projet met en pratique plusieurs compétences techniques et métier :
 - contrôle et qualité des données ;
 - conception d'un système semi-automatique avec validation humaine ;
 - amélioration continue d'un processus administratif et financier.
+
+Le projet **Fournisseurs & SIREN** complète ces compétences avec : appels d'API REST publiques, analyse JSON en VBA, exploitation du BODACC, contrôle de référentiels et analyse de continuité juridique.
 
 ## Statut du projet
 
