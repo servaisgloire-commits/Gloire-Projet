@@ -1,14 +1,15 @@
 Option Explicit
 
 ' ==========================================================
-' FOURNISSEUR_V1 - version reconstruite depuis les archives
+' FOURNISSEUR_V1
+' Contrôle automatique des informations fournisseurs
 ' ==========================================================
-' Entree  : texte de recherche en colonne H
+' Entrée  : texte de recherche en colonne H
 ' Sorties : B = SIREN
 '           C = date de cessation
 '           D = raison sociale
 '           E = statut
-' Source  : API Recherche Entreprises (api.gouv.fr)
+' Source  : API Recherche d'Entreprises
 ' ==========================================================
 
 Public Sub FOURNISSEUR_V1()
@@ -69,7 +70,7 @@ Public Sub RechercherInfosEntreprise()
 
 FinPropre:
     Application.ScreenUpdating = True
-    MsgBox nbTraitees & " ligne(s) traitee(s).", vbInformation
+    MsgBox nbTraitees & " ligne(s) traitée(s).", vbInformation
     Exit Sub
 
 FinAvecErreur:
@@ -135,7 +136,7 @@ Private Function ChercherInfosDataGouv( _
         Case "A"
             statut = "Active"
         Case "C", "F"
-            statut = "Fermee / cessee"
+            statut = "Fermée / cessée"
         Case Else
             statut = ""
     End Select
